@@ -1,0 +1,5 @@
+conda create -n seg_bench python=3.10 -y
+conda activate seg_bench
+pip install torch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 --index-url https://download.pytorch.org/whl/cu121
+pip install einops yacs matplotlib opencv-python timm ml-collections pydicom pandas scikit-learn kornia
+pip install albumentations==1.3.1
