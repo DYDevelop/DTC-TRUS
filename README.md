@@ -8,7 +8,7 @@ This repository provides the official implementation of our **Temporally Consist
 
 ## Overview
 
-![Image](https://github.com/user-attachments/assets/856e7523-43dd-4723-a743-86a787a7129a)
+![Image](./figures/Figure1.png)
 
 Conventional 2D segmentation models treat video frames independently, causing inter-frame "flickering" artifacts that are clinically unacceptable. While 3D or recurrent architectures can address this, they are too slow for real-time intra-operative use. We resolve this dilemma with a training-time framework that teaches a lightweight 2D student to be temporally consistent — without requiring dense video annotations.
 
@@ -34,7 +34,7 @@ L_con = 1 - (1/N) * Σ_p M_noc(p) · (1 - |P_t(p) - P̃_{t-1→t}(p)|)
 ```
 
 ### 3. Dual-scale Prototype Alignment Module (`L_proto`)
-![Image](https://github.com/user-attachments/assets/0842558e-8e19-4cdf-b578-51424aa6233e)
+![Image](./figures/Figure2.png)
 - Prototypes are computed via masked average pooling at both **local (decoder)** and **global (bottleneck)** feature scales.
 - Foreground local prototypes are warped across time for boundary-level alignment; background global prototypes are compared directly for scene-level stability.
 - Area-adaptive cross-weighting automatically balances the two scales — smaller foregrounds receive higher local boundary weight:
