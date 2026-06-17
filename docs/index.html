@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DTC-TRUS | Temporally Consistent Prostate Video Segmentation</title>
+  <meta name="description" content="Project page for DTC-TRUS: Distilling temporal coherence into 2D networks for TRUS prostate video segmentation.">
+  <!-- Pre-publication safety: remove this meta tag and robots.txt when the project page is ready for public indexing. -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta property="og:title" content="DTC-TRUS">
+  <meta property="og:description" content="Distilling temporal coherence into 2D networks for transrectal ultrasound prostate video segmentation.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/img/og_image.jpg">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1020'/%3E%3Cpath d='M14 42c9-25 27-25 36 0' fill='none' stroke='%236ee7f9' stroke-width='6' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='35' r='8' fill='%23a7f3d0'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" id="top">
+    <nav class="nav container" aria-label="Main navigation">
+      <a class="brand" href="#top" aria-label="DTC-TRUS home">
+        <span class="brand-mark" aria-hidden="true">DTC</span>
+        <span class="brand-text">DTC-TRUS</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-links">
+        <a href="#abstract">Abstract</a>
+        <a href="#method">Method</a>
+        <a href="#dataset">Dataset</a>
+        <a href="#results">Results</a>
+        <a href="#materials">Materials</a>
+        <a href="#citation">Citation</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero section-tight">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow">Video Prostate Segmentation · Temporal Consistency · Ultrasound</div>
+          <h1>Distilling Temporal Coherence into 2D Networks for TRUS Prostate Video Segmentation</h1>
+          <!-- TODO after publication: replace this block with final author list and affiliations. -->
+          <p class="authors">Anonymous Authors <span>Author list to be added after publication.</span></p>
+          <p class="lede">
+            DTC-TRUS trains a standard 2D segmentation network to behave consistently across TRUS video frames,
+            while preserving efficient single-frame inference at test time.
+          </p>
+          <div class="cta-row" aria-label="Project links">
+            <!-- TODO after publication: replace href="#" with the official paper or preprint URL. -->
+            <a class="button button-disabled" href="#citation" aria-disabled="true">Paper coming soon</a>
+            <!-- TODO: replace href with the public code repository URL. -->
+            <a class="button button-secondary button-disabled" href="#materials" aria-disabled="true">Code release pending</a>
+            <!-- TODO: replace href with dataset request/release URL. -->
+            <a class="button button-secondary button-disabled" href="#dataset" aria-disabled="true">Dataset coming soon</a>
+          </div>
+          <dl class="stat-strip" aria-label="Key manuscript statistics">
+            <div>
+              <dt>TRUS-V</dt>
+              <dd>2,679 frames</dd>
+            </div>
+            <div>
+              <dt>Views</dt>
+              <dd>Axial + Sagittal</dd>
+            </div>
+            <div>
+              <dt>Inference</dt>
+              <dd>2D only</dd>
+            </div>
+          </dl>
+        </div>
+        <figure class="hero-figure card">
+          <img src="assets/img/figure_1_teaser.jpg" alt="Teaser comparing flickering 2D slice-based predictions with robust temporally consistent predictions.">
+          <figcaption>
+            Teaser. Slice-based 2D segmentation suffers from inter-frame flickering, whereas DTC-TRUS enforces temporal coherence during training.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="abstract" class="section">
+      <div class="container narrow">
+        <p class="section-kicker">Abstract</p>
+        <h2>Temporal stability without temporal inference overhead.</h2>
+        <p>
+          Real-time prostate segmentation in transrectal ultrasound (TRUS) video is challenging because conventional 2D models ignore temporal context and produce flickering masks, whereas 3D or recurrent video models increase inference latency. DTC-TRUS addresses this trade-off by distilling temporal coherence into a 2D student network during training.
+        </p>
+        <p>
+          The framework combines confidence-weighted optical-flow consistency, dual-scale prototype alignment, self-supervised geometric equivariance, and knowledge distillation from a static-image teacher. At inference, only the 2D student is used, avoiding optical-flow computation, teacher inference, or temporal modules.
+        </p>
+      </div>
+    </section>
+
+    <section class="section alt">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-kicker">Motivation</p>
+          <h2>Why temporal coherence matters in TRUS video.</h2>
+        </div>
+        <div class="problem-grid">
+          <article class="problem-card">
+            <h3>2D slice-based models</h3>
+            <p>Efficient frame-by-frame inference, but predictions can fluctuate across adjacent frames because temporal context is ignored.</p>
+          </article>
+          <article class="problem-card">
+            <h3>3D / recurrent models</h3>
+            <p>Can model spatiotemporal structure, but add computation that is difficult to justify for low-latency intra-operative use.</p>
+          </article>
+          <article class="problem-card accent-card">
+            <h3>DTC-TRUS</h3>
+            <p>Uses video dynamics only as training supervision, so the deployed model remains a standard 2D segmenter.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="method" class="section">
+      <div class="container">
+        <div class="section-heading split">
+          <div>
+            <p class="section-kicker">Method</p>
+            <h2>Temporally Consistent Learning Framework</h2>
+          </div>
+          <p class="section-summary">
+            DTC-TRUS supervises a student network using pixel-level motion consistency and feature-level semantic alignment, while retaining anatomical priors from a frozen teacher.
+          </p>
+        </div>
+
+        <figure class="wide-figure card">
+          <img src="assets/img/figure_2_framework.jpg" alt="Overview of DTC-TRUS with student-teacher learning, pseudo-labeling, optical flow consistency, and prototype alignment.">
+          <figcaption>
+            Framework overview. The training objective combines self-supervised segmentation, knowledge distillation, confidence-weighted temporal consistency, and prototype alignment. Only the 2D student is used at inference.
+          </figcaption>
+        </figure>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <span class="feature-index">01</span>
+            <h3>Self-supervised equivariance</h3>
+            <p>
+              Pseudo-labels are generated from geometrically transformed frames and restored via the inverse transform, encouraging transformation-consistent segmentation without dense per-frame video labels.
+            </p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-index">02</span>
+            <h3>Knowledge distillation</h3>
+            <p>
+              A frozen static-image teacher regularizes the student so video adaptation does not erase spatial and anatomical priors learned from labeled images.
+            </p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-index">03</span>
+            <h3>Confidence-weighted temporal consistency</h3>
+            <p>
+              Adjacent-frame predictions are aligned by optical-flow warping. A non-occlusion confidence map down-weights unstable regions where acoustic artifacts or motion make the temporal signal unreliable.
+            </p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-index">04</span>
+            <h3>Dual-scale prototype alignment</h3>
+            <p>
+              Local foreground prototypes stabilize boundary features, while global background prototypes stabilize scene semantics. Area-adaptive weighting balances these two alignment signals.
+            </p>
+          </article>
+        </div>
+
+        <figure class="wide-figure card figure-offset">
+          <img src="assets/img/figure_3_prototypes.jpg" alt="Dual-scale prototype alignment module showing local and global prototype filters and contrastive alignment.">
+          <figcaption>
+            Dual-scale prototype alignment. Local and global prototypes are optimized to improve semantic consistency across neighboring frames.
+          </figcaption>
+        </figure>
+
+        <div class="equation-card">
+          <h3>Training objective</h3>
+          <p><code>L_total = λ_seg L_seg + λ_KD L_KD + λ_con L_con + λ_proto L_proto</code></p>
+          <p>
+            The deployment path removes all training-only components: no teacher, no optical flow, and no temporal interaction module are required for inference.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="dataset" class="section alt">
+      <div class="container">
+        <div class="section-heading split">
+          <div>
+            <p class="section-kicker">Dataset</p>
+            <h2>TRUS-V benchmark</h2>
+          </div>
+          <p class="section-summary">
+            TRUS-V is a multi-view prostate ultrasound video benchmark designed to evaluate segmentation accuracy and temporal coherence in clinically realistic videos.
+          </p>
+        </div>
+
+        <div class="dataset-grid">
+          <article class="metric-card">
+            <strong>2,679</strong>
+            <span>annotated frames</span>
+          </article>
+          <article class="metric-card">
+            <strong>10</strong>
+            <span>patients</span>
+          </article>
+          <article class="metric-card">
+            <strong>20</strong>
+            <span>continuous videos</span>
+          </article>
+          <article class="metric-card">
+            <strong>2</strong>
+            <span>views: axial and sagittal</span>
+          </article>
+        </div>
+
+        <div class="two-column">
+          <article class="card text-card">
+            <h3>Patient-level split</h3>
+            <p>
+              The benchmark is partitioned at the patient level into 2,405 training frames and 274 testing frames.
+            </p>
+          </article>
+          <article class="card text-card">
+            <h3>Reference masks</h3>
+            <p>
+              Candidate masks are initialized with an ensemble U-Net trained on a separate static dataset and then manually refined frame-by-frame by experienced radiologists.
+            </p>
+          </article>
+        </div>
+
+        <div class="notice">
+          <strong>Release status.</strong> Dataset access information is intentionally left as a placeholder and should be added after the dataset release policy is finalized.
+        </div>
+      </div>
+    </section>
+
+    <section id="results" class="section">
+      <div class="container">
+        <div class="section-heading split">
+          <div>
+            <p class="section-kicker">Results</p>
+            <h2>Reported quantitative performance</h2>
+          </div>
+          <p class="section-summary">
+            The tables below summarize the manuscript-reported performance of DTC-TRUS on SUN-SEG and TRUS-V. Values should be updated if the paper changes during review.
+          </p>
+        </div>
+
+        <div class="table-grid">
+          <div class="table-card card">
+            <h3>SUN-SEG unseen splits</h3>
+            <div class="table-scroll" role="region" aria-label="SUN-SEG results table" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Split</th>
+                    <th>S<sub>α</sub></th>
+                    <th>E<sup>mn</sup><sub>ϕ</sub></th>
+                    <th>F<sup>w</sup><sub>β</sub></th>
+                    <th>F<sup>mn</sup><sub>β</sub></th>
+                    <th>Dice</th>
+                    <th>Sen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Easy</td>
+                    <td>0.816</td>
+                    <td>0.882</td>
+                    <td>0.738</td>
+                    <td>0.784</td>
+                    <td>0.746</td>
+                    <td>0.719</td>
+                  </tr>
+                  <tr>
+                    <td>Hard</td>
+                    <td>0.816</td>
+                    <td>0.878</td>
+                    <td>0.719</td>
+                    <td>0.758</td>
+                    <td>0.737</td>
+                    <td>0.741</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="table-note">Reported real-time inference: 89.95 FPS with ACSNet.</p>
+          </div>
+
+          <div class="table-card card">
+            <h3>TRUS-V benchmark</h3>
+            <div class="table-scroll" role="region" aria-label="TRUS-V results table" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Method</th>
+                    <th>S<sub>α</sub></th>
+                    <th>E<sup>mn</sup><sub>ϕ</sub></th>
+                    <th>F<sup>w</sup><sub>β</sub></th>
+                    <th>F<sup>mn</sup><sub>β</sub></th>
+                    <th>Dice</th>
+                    <th>Sen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Ours</td>
+                    <td>0.967</td>
+                    <td>0.988</td>
+                    <td>0.830</td>
+                    <td>0.828</td>
+                    <td>0.829</td>
+                    <td>0.839</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="table-note">Reported real-time inference: 127.97 FPS with U-Net++.</p>
+          </div>
+        </div>
+
+        <figure class="wide-figure card figure-offset">
+          <img src="assets/img/figure_4_visual_comparison.jpg" alt="Visual comparison on TRUS-V across frames, ground truth, competing methods, and DTC-TRUS results.">
+          <figcaption>
+            Visual comparison on TRUS-V. DTC-TRUS maintains smoother prostate boundaries under acoustic shadows and rapid probe motion.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="materials" class="section alt">
+      <div class="container narrow">
+        <p class="section-kicker">Materials</p>
+        <h2>Code, paper, and dataset links</h2>
+        <div class="release-list">
+          <div class="release-item">
+            <div>
+              <h3>Paper</h3>
+              <p>Official paper/preprint URL will be added after publication.</p>
+            </div>
+            <span class="pill muted">Coming soon</span>
+          </div>
+          <div class="release-item">
+            <div>
+              <h3>Code</h3>
+              <p>Training and inference code link should be added once the repository is ready for public release.</p>
+            </div>
+            <span class="pill muted">Pending</span>
+          </div>
+          <div class="release-item">
+            <div>
+              <h3>Dataset</h3>
+              <p>TRUS-V release, access request, or data-use agreement instructions should be added here.</p>
+            </div>
+            <span class="pill muted">Pending</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="citation" class="section">
+      <div class="container narrow">
+        <p class="section-kicker">Citation</p>
+        <h2>BibTeX placeholder</h2>
+        <p>Replace this block with the final BibTeX entry after publication.</p>
+        <div class="code-card">
+<pre id="bibtex"><code>@inproceedings{dtc_trus_2026,
+  title     = {Distilling Temporal Coherence into 2D Networks for Transrectal Ultrasound Prostate Video Segmentation},
+  author    = {Anonymous Authors},
+  booktitle = {To appear},
+  year      = {2026},
+  note      = {Paper link coming soon}
+}</code></pre>
+          <button type="button" class="copy-button" id="copy-bibtex">Copy BibTeX</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <p><strong>DTC-TRUS</strong> · Project page template prepared for pre-publication use.</p>
+      <p><a href="#top">Back to top</a></p>
+    </div>
+  </footer>
+
+  <script src="assets/js/site.js"></script>
+</body>
+</html>

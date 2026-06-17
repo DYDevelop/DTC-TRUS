@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /
+
+# Pre-publication setting. Remove this file or change Disallow to Allow when public indexing is desired.
