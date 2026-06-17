@@ -1,6 +1,8 @@
 # Distilling Temporal Coherence into 2D Networks for Transrectal Ultrasound Prostate Video Segmentation
 
 > **Accepted on MICCAI 2026** 
+> 
+> **Project Page:** [https://dydevelop.github.io/DTC-TRUS/](https://dydevelop.github.io/DTC-TRUS/)
 
 This repository provides the official implementation of our **Temporally Consistent Learning Framework** for real-time prostate segmentation in Transrectal Ultrasound (TRUS) videos. Our method distills temporal coherence into a standard 2D backbone during training, achieving temporally stable predictions at inference with **no 3D computation overhead**.
 
@@ -13,6 +15,14 @@ This repository provides the official implementation of our **Temporally Consist
 Conventional 2D segmentation models treat video frames independently, causing inter-frame "flickering" artifacts that are clinically unacceptable. While 3D or recurrent architectures can address this, they are too slow for real-time intra-operative use. We resolve this dilemma with a training-time framework that teaches a lightweight 2D student to be temporally consistent — without requiring dense video annotations.
 
 **Key Idea:** The prostate is geometrically stable, but the surrounding acoustic environment fluctuates due to physiological motion and transducer pressure. Naive temporal constraints propagate erroneous gradients from these unstable regions. Our framework selectively attends to reliable regions through confidence-weighted optical flow and dual-scale prototype alignment.
+
+---
+
+## Project Page
+
+For a visual summary of the paper, including the framework overview, TRUS-V benchmark details, quantitative results, and citation information, visit the project page:
+
+[**DTC-TRUS Project Page**](https://dydevelop.github.io/DTC-TRUS/)
 
 ---
 
