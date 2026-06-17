@@ -72,7 +72,7 @@ We release **TRUS-V**, a new multi-view TRUS video segmentation benchmark:
 | Patients | 10 patients |
 | Views | Axial + Sagittal (paired per patient) |
 | Sequences | 20 continuous video sequences |
-| Split | 9 patient train / 1 patient test (patient-level) |
+| Split | 9 patient (2,400) train / 1 patient (279) test (patient-level) |
 | Annotation | Semi-automated (5-fold U-Net ensemble + radiologist refinement) |
 | Ensemble DSC | 0.95 (Axial), 0.93 (Sagittal) |
 
