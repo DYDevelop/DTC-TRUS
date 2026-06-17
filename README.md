@@ -329,11 +329,12 @@ Configure `id` (patient ID), `mode` (`img` or `vid`), and `type` (`axi`/`sag`) d
 If you find this work useful in your research, please cite:
 
 ```bibtex
-@inproceedings{anonymous2026trus,
+@inproceedings{kim2026dtctrus,
   title     = {Distilling Temporal Coherence into 2D Networks for Transrectal Ultrasound Prostate Video Segmentation},
-  author    = {Anonymized Authors},
-  booktitle = {Medical Image Computing and Computer-Assisted Intervention (MICCAI)},
-  year      = {2026}
+  author    = {Kim, Dong Yeong and Lee, JunGyu and Choi, Jaewon and Seo, June Young and Kim, Myeongseop and Choi, Jinwook and Kim, Taek Min and Kim, Young-Gon},
+  booktitle = {International Conference on Medical Image Computing and Computer-Assisted Intervention (MICCAI)},
+  year      = {2026},
+  note      = {Accepted}
 }
 ```
 
