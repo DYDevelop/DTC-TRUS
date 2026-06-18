@@ -91,7 +91,7 @@ L_total = lambda_seg * L_seg
 | Patients | 10 patients |
 | Views | Axial and sagittal |
 | Sequences | 20 continuous video sequences |
-| Split | 2,405 training frames / 274 testing frames, patient-level |
+| Split | 2,400 training frames / 279 testing frames, patient-level |
 | Annotation | Semi-automated 5-fold U-Net ensemble + radiologist refinement |
 | Ensemble DSC | 0.95 axial / 0.93 sagittal |
 | Access | [TRUS-V on KHDP](https://khdp.net/database/data-search-detail/TRUS-V) |
