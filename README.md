@@ -78,7 +78,7 @@ We release **TRUS-V**, a new multi-view TRUS video segmentation benchmark:
 | Annotation | Semi-automated (5-fold U-Net ensemble + radiologist refinement) |
 | Ensemble DSC | 0.95 (Axial), 0.93 (Sagittal) |
 
-The datasetis avaliable now!!! --> **([Link](https://khdp.net/database/data-search-detail/TRUS-V)**
+The datasetis avaliable now!!! -> **([Link](https://khdp.net/database/data-search-detail/TRUS-V)**
 Simply singin to Korea Health Data Platform (KHDP) for Global Collaborative Research
 
 ---
