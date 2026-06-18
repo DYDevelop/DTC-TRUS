@@ -1,132 +1,152 @@
-# Distilling Temporal Coherence into 2D Networks for Transrectal Ultrasound Prostate Video Segmentation
+<div align="center">
 
-> **Accepted on MICCAI 2026** 
-> 
-> **Project Page:** **[Link](https://dydevelop.github.io/DTC-TRUS/)**
->
-> **Dataset:** **[Link](https://khdp.net/database/data-search-detail/TRUS-V)**
+# DTC-TRUS
 
-This repository provides the official implementation of our **Temporally Consistent Learning Framework** for real-time prostate segmentation in Transrectal Ultrasound (TRUS) videos. Our method distills temporal coherence into a standard 2D backbone during training, achieving temporally stable predictions at inference with **no 3D computation overhead**.
+### Distilling Temporal Coherence into 2D Networks for TRUS Prostate Video Segmentation
+
+[![MICCAI 2026](https://img.shields.io/badge/MICCAI-2026-2F80ED)](#citation)
+[![Project Page](https://img.shields.io/badge/Project-Page-111827)](https://dydevelop.github.io/DTC-TRUS/)
+[![Dataset](https://img.shields.io/badge/Dataset-TRUS--V%20%40%20KHDP-10B981)](https://khdp.net/database/data-search-detail/TRUS-V)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.4.1-EE4C2C)](#installation)
+
+Official implementation of **DTC-TRUS**, a temporally consistent learning framework for real-time prostate segmentation in transrectal ultrasound videos.
+
+</div>
 
 ---
 
 ## Overview
 
-![Image](./figures/Figure1.png)
+DTC-TRUS addresses a practical limitation of frame-by-frame 2D segmentation in TRUS videos: adjacent frames can produce unstable, flickering prostate masks. Instead of deploying a computationally heavy 3D or recurrent model, DTC-TRUS uses video dynamics only during training and distills temporal coherence into a standard 2D student network.
 
-Conventional 2D segmentation models treat video frames independently, causing inter-frame "flickering" artifacts that are clinically unacceptable. While 3D or recurrent architectures can address this, they are too slow for real-time intra-operative use. We resolve this dilemma with a training-time framework that teaches a lightweight 2D student to be temporally consistent — without requiring dense video annotations.
+At inference, the deployed model remains a single-frame 2D segmenter: **no optical flow, no teacher model, and no temporal module are required**.
 
-**Key Idea:** The prostate is geometrically stable, but the surrounding acoustic environment fluctuates due to physiological motion and transducer pressure. Naive temporal constraints propagate erroneous gradients from these unstable regions. Our framework selectively attends to reliable regions through confidence-weighted optical flow and dual-scale prototype alignment.
+![DTC-TRUS teaser](./figures/Figure1.png)
+
+### Highlights
+
+- **Temporal coherence with 2D inference**: video consistency is learned during training, while test-time inference remains lightweight.
+- **Confidence-weighted temporal consistency**: optical-flow supervision is down-weighted in acoustically unstable or occluded regions.
+- **Dual-scale prototype alignment**: local foreground prototypes improve boundary consistency, while global background prototypes stabilize scene semantics.
+- **TRUS-V benchmark**: 2,679 annotated TRUS video frames from axial and sagittal views are released through KHDP.
 
 ---
 
-## Project Page
+## Links
 
-For a visual summary of the paper, including the framework overview, TRUS-V benchmark details, quantitative results, and citation information, visit the project page:
-
-[**DTC-TRUS Project Page**](https://dydevelop.github.io/DTC-TRUS/)
+| Resource | Status | Link |
+|---|---:|---|
+| Project page | Available | [dydevelop.github.io/DTC-TRUS](https://dydevelop.github.io/DTC-TRUS/) |
+| Code | Available | [github.com/DYDevelop/DTC-TRUS](https://github.com/DYDevelop/DTC-TRUS) |
+| TRUS-V dataset | Available | [KHDP dataset page](https://khdp.net/database/data-search-detail/TRUS-V) |
+| Paper | Pending | Official paper URL will be added after publication |
 
 ---
 
 ## Method
 
-Our framework consists of four synergistic components:
+The framework consists of four training signals that are applied to a 2D student network.
 
-### 1. Self-Supervised Equivariance & Knowledge Distillation
-- **Flip-based pseudo-label generation**: Predictions under the original and horizontally flipped inputs are averaged to form stable pseudo-labels, circumventing the cost of dense manual video annotation.
-- **Student-Teacher KD**: A frozen pretrained Teacher (trained on static images) supervises the Student via temperature-scaled MSE on logits, preventing catastrophic forgetting of spatial priors while adapting to video dynamics.
+![Framework overview](./figures/Figure2.png)
 
-### 2. Confidence-Weighted Temporal Consistency (`L_con`)
-- Optical flow (Farneback) warps the previous frame's predicted mask to the current frame coordinate system.
-- A **non-occlusion confidence map** `M_noc = exp(-|I_t - W(I_{t-1}, F)|)` down-weights occluded or acoustically unstable regions.
-- Consistency loss maximizes structural agreement only in high-confidence regions:
+### 1. Self-supervised equivariance and knowledge distillation
 
-```
-L_con = 1 - (1/N) * Σ_p M_noc(p) · (1 - |P_t(p) - P̃_{t-1→t}(p)|)
-```
+Flip-based pseudo-labels encourage transformation-consistent predictions without dense per-frame video labels. A frozen teacher trained on static images regularizes the student and helps preserve anatomical priors during video adaptation.
 
-### 3. Dual-scale Prototype Alignment Module (`L_proto`)
-![Image](./figures/Figure2.png)
-- Prototypes are computed via masked average pooling at both **local (decoder)** and **global (bottleneck)** feature scales.
-- Foreground local prototypes are warped across time for boundary-level alignment; background global prototypes are compared directly for scene-level stability.
-- Area-adaptive cross-weighting automatically balances the two scales — smaller foregrounds receive higher local boundary weight:
+### 2. Confidence-weighted temporal consistency
 
-```
-L_proto = w_cb · (1 - cos(ṽ^loc_{cf,t-1}, v^loc_{cf,t})) + w_cf · (1 - cos(v^glob_{cb,t-1}, v^glob_{cb,t}))
+Given adjacent frames, optical flow warps the previous prediction into the current frame. A non-occlusion confidence map suppresses unreliable gradients from occlusion, acoustic shadows, and unstable background regions.
+
+```text
+L_con = 1 - (1 / N) * sum_p M_noc(p) * (1 - |P_t(p) - P_t-1->t(p)|)
 ```
 
-### 4. Total Objective
-```
-L_total = λ_seg·L_seg + λ_KD·L_KD + λ_con·L_con + λ_proto·L_proto
+### 3. Dual-scale prototype alignment
+
+Local and global prototypes are extracted from decoder and bottleneck features. The local foreground prototype stabilizes boundaries, while the global background prototype improves scene-level temporal consistency.
+
+```text
+L_proto = w_cb * (1 - cos(v_loc_cf,t-1, v_loc_cf,t))
+        + w_cf * (1 - cos(v_glob_cb,t-1, v_glob_cb,t))
 ```
 
-> **Inference efficiency**: Only the 2D Student network is deployed at inference. No optical flow, no Teacher, no 3D computation — guaranteeing real-time performance.
+### 4. Total objective
+
+```text
+L_total = lambda_seg * L_seg
+        + lambda_KD  * L_KD
+        + lambda_con * L_con
+        + lambda_proto * L_proto
+```
 
 ---
 
 ## TRUS-V Benchmark
 
-We release **TRUS-V**, a new multi-view TRUS video segmentation benchmark:
+**TRUS-V** is a multi-view prostate ultrasound video segmentation benchmark designed to evaluate both segmentation accuracy and temporal stability.
 
 | Property | Details |
 |---|---|
 | Total frames | 2,679 densely annotated frames |
 | Patients | 10 patients |
-| Views | Axial + Sagittal (paired per patient) |
+| Views | Axial and sagittal |
 | Sequences | 20 continuous video sequences |
-| Split | 9 patient (2,400) train / 1 patient (279) test (patient-level) |
-| Annotation | Semi-automated (5-fold U-Net ensemble + radiologist refinement) |
-| Ensemble DSC | 0.95 (Axial), 0.93 (Sagittal) |
+| Split | 2,405 training frames / 274 testing frames, patient-level |
+| Annotation | Semi-automated 5-fold U-Net ensemble + radiologist refinement |
+| Ensemble DSC | 0.95 axial / 0.93 sagittal |
+| Access | [TRUS-V on KHDP](https://khdp.net/database/data-search-detail/TRUS-V) |
 
-The datasetis avaliable now!!! -> **[Link](https://khdp.net/database/data-search-detail/TRUS-V)**
-Simply singin to Korea Health Data Platform (KHDP) for Global Collaborative Research
+To access the dataset, sign in to the Korea Health Data Platform (KHDP) and follow the instructions on the TRUS-V dataset page.
 
 ---
 
 ## Results
-**Bold** indecates our method.
-### SUN-SEG (Video Polyp Segmentation Benchmark)
 
-| Method | Type | S_α ↑ | E_φ^mn ↑ | F_β^w ↑ | Dice ↑ | Sen ↑ |
-|---|---|---|---|---|---|---|
+### SUN-SEG-Easy unseen split
+
+| Method | Type | S<sub>α</sub> ↑ | E<sup>mn</sup><sub>ϕ</sub> ↑ | F<sup>w</sup><sub>β</sub> ↑ | Dice ↑ | Sen ↑ |
+|---|---|---:|---:|---:|---:|---:|
 | U-Net | 2D | 0.669 | 0.677 | 0.459 | 0.530 | 0.420 |
 | ACSNet | 2D | 0.782 | 0.779 | 0.642 | 0.713 | 0.601 |
 | MSRF-Net | 2D | 0.794 | 0.780 | 0.652 | 0.701 | 0.600 |
 | SSTAN | Video | 0.805 | 0.838 | 0.691 | 0.726 | 0.662 |
 | DALA | Video | 0.837 | 0.854 | 0.722 | 0.768 | 0.721 |
-| **Ours** | **2D** | **0.816** | **0.882** | **0.738** | **0.746** | **0.719** |
+| **DTC-TRUS** | **2D** | **0.816** | **0.882** | **0.738** | **0.746** | **0.719** |
 
-Our 2D method rivals or surpasses heavy video-based models at **89.95 FPS** (ACSNet backbone).
+Reported inference speed: **89.95 FPS** with ACSNet.
 
-### TRUS-V (In-house Clinical Benchmark)
+### TRUS-V benchmark
 
-| Method | Type | S_α ↑ | E_φ^mn ↑ | F_β^w ↑ | Dice ↑ | Sen ↑ |
-|---|---|---|---|---|---|---|
+| Method | Type | S<sub>α</sub> ↑ | E<sup>mn</sup><sub>ϕ</sub> ↑ | F<sup>w</sup><sub>β</sub> ↑ | Dice ↑ | Sen ↑ |
+|---|---|---:|---:|---:|---:|---:|
 | U-Net | 2D | 0.964 | 0.985 | 0.808 | 0.817 | 0.829 |
 | U-Net++ | 2D | 0.967 | 0.988 | 0.821 | 0.820 | 0.827 |
 | MSRF-Net | 2D | 0.965 | 0.987 | 0.821 | 0.821 | 0.838 |
 | SSTAN | Video | 0.963 | 0.980 | 0.816 | 0.819 | 0.837 |
 | DALA | Video | 0.908 | 0.931 | 0.539 | 0.729 | 0.746 |
-| **Ours** | **2D** | **0.967** | **0.988** | **0.830** | **0.829** | **0.839** |
+| **DTC-TRUS** | **2D** | **0.967** | **0.988** | **0.830** | **0.829** | **0.839** |
 
-Achieves state-of-the-art at **127.97 FPS** (U-Net++ backbone).
+Reported inference speed: **127.97 FPS** with U-Net++.
 
-### Ablation Study (SUN-SEG-Easy, Unseen)
+### Ablation study on SUN-SEG-Easy unseen
 
-| Configuration | S_α ↑ | Dice ↑ |
-|---|---|---|
-| Baseline (L_seg only) | 0.274 | 0.171 |
-| + KD only (w/o Temporal) | 0.793 | 0.701 |
-| + KD + Proto (w/o Consistency) | 0.813 | 0.735 |
-| + KD + Consistency (w/o Proto) | 0.810 | 0.722 |
-| + KD + Single-scale Proto + Consistency | 0.808 | 0.721–0.722 |
-| **Full Model (Dual-scale)** | **0.816** | **0.746** |
+| Configuration | S<sub>α</sub> ↑ | Dice ↑ |
+|---|---:|---:|
+| Baseline, `L_seg` only | 0.274 | 0.171 |
+| + Knowledge distillation | 0.793 | 0.701 |
+| + KD + prototype alignment | 0.813 | 0.735 |
+| + KD + temporal consistency | 0.810 | 0.722 |
+| + KD + single-scale prototype + consistency | 0.808 | 0.721-0.722 |
+| **Full DTC-TRUS** | **0.816** | **0.746** |
 
 ---
 
 ## Installation
 
 ```bash
+git clone https://github.com/DYDevelop/DTC-TRUS.git
+cd DTC-TRUS
+
 conda create -n seg_bench python=3.10 -y
 conda activate seg_bench
 
@@ -141,18 +161,18 @@ pip install albumentations==1.3.1
 
 ---
 
-## Project Structure
+## Repository Structure
 
-```
+```text
 project_root/
 ├── src/
 │   ├── network/
-│   │   ├── conv_based/              # U-Net, U-Net++, U-Net 3+ 
+│   │   ├── conv_based/              # U-Net, U-Net++, U-Net 3+
 │   │   ├── transformer_based/       # TransNetR, ColonSegNet, AttU-Net, ACSNet
 │   │   └── hybrid_based/            # PraNet, MedNeXt, CMUNet, CMUNeXt, UNeXt, MSRF-Net
 │   ├── dataloader/
 │   │   ├── dataset.py               # Static image dataloader
-│   │   └── temporal_dataset_ddp.py  # Video sequence dataloader (DDP-compatible)
+│   │   └── temporal_dataset_ddp.py  # Video sequence dataloader, DDP-compatible
 │   ├── utils/
 │   │   ├── losses.py                # BCE-Dice loss, structure loss
 │   │   ├── metrics.py               # IoU, DSC, SE, PC, F1, ACC
@@ -160,16 +180,14 @@ project_root/
 │   │   └── util.py                  # Optical flow, warping, AverageMeter
 │   └── load_model.py
 ├── scripts/
-│   ├── img_main.py                  # Stage 1: Static image training (Teacher)
-│   ├── vid_main_flip_kd_proto_ddp.py  # Stage 2: Video training (Student, DDP)
-│   ├── vid_infer_single_patient.py  # Per-patient video inference & visualization
-│   ├── compute_flow_warp.py         # Optical flow utilities and visualization
+│   ├── img_main.py                  # Stage 1: static-image teacher training
+│   ├── vid_main_flip_kd_proto_ddp.py # Stage 2: temporally consistent student training
+│   ├── vid_infer_single_patient.py  # Per-patient video inference and visualization
+│   ├── compute_flow_warp.py         # Optical-flow utilities
 │   └── 3D_recon.py                  # 3D mesh reconstruction from NIfTI masks
-├── image_checkpoint/                # Pretrained Teacher checkpoints
-│   └── checkpoint_axi/
-│       └── U_Net_0_model.pth
-├── video_results/                   # Saved NIfTI segmentation outputs (.nii.gz)
-├── single_patient_results/          # Per-patient inference videos (.mp4)
+├── image_checkpoint/                # Pretrained teacher checkpoints
+├── video_results/                   # Saved NIfTI segmentation outputs
+├── single_patient_results/          # Per-patient inference videos
 └── etc_dataset/
     └── list/
         └── etc_dataset.csv
@@ -179,9 +197,7 @@ project_root/
 
 ## Usage
 
-### Stage 1 — Train the Teacher (Static Image Segmentation)
-
-Train a 2D segmentation model on labeled static TRUS images. This checkpoint is used as the frozen Teacher in Stage 2.
+### Stage 1: train the static-image teacher
 
 ```bash
 python scripts/img_main.py \
@@ -194,7 +210,7 @@ python scripts/img_main.py \
     --mode train
 ```
 
-To evaluate a trained static model:
+Evaluate a trained teacher checkpoint:
 
 ```bash
 python scripts/img_main.py \
@@ -203,13 +219,12 @@ python scripts/img_main.py \
     --checkpoint /path/to/checkpoint.pth
 ```
 
----
+### Stage 2: train the temporally consistent student
 
-### Stage 2 — Train the Student (Temporally Consistent Video Segmentation)
+The student is trained on video sequences using pseudo-labeling, teacher distillation, confidence-weighted temporal consistency, and prototype alignment.
 
-The Student is trained on unlabeled video sequences using flip-based pseudo-labels, knowledge distillation from the Teacher, confidence-weighted temporal consistency, and dual-scale prototype alignment.
+Single-GPU example:
 
-**Single GPU:**
 ```bash
 python scripts/vid_main_flip_kd_proto_ddp.py \
     --model U_Net \
@@ -229,7 +244,8 @@ python scripts/vid_main_flip_kd_proto_ddp.py \
     --gpu_id 0
 ```
 
-**Multi-GPU (DDP) with AMP:**
+Multi-GPU example with DDP and AMP:
+
 ```bash
 python scripts/vid_main_flip_kd_proto_ddp.py \
     --model U_Net \
@@ -241,38 +257,36 @@ python scripts/vid_main_flip_kd_proto_ddp.py \
     --gradient_accumulation_steps 2
 ```
 
-**Target specific GPUs:**
+Target specific GPUs:
+
 ```bash
 CUDA_VISIBLE_DEVICES=0,1,2 python scripts/vid_main_flip_kd_proto_ddp.py \
     --multi_gpu --use_amp
 ```
 
-**Key training arguments:**
+<details>
+<summary>Key training arguments</summary>
 
 | Argument | Default | Description |
-|---|---|---|
+|---|---:|---|
 | `--model` | `U_Net` | Backbone architecture |
-| `--use_prototype` | `False` | Enable Dual-scale Prototype Alignment Module |
-| `--checkpoint` | — | **Required**: Path to pretrained Teacher checkpoint |
+| `--use_prototype` | `False` | Enable dual-scale prototype alignment |
+| `--checkpoint` | - | Path to pretrained teacher checkpoint |
 | `--sequence_length` | `3` | Number of frames per temporal sequence |
 | `--frame_gap` | `1` | Temporal stride between frames |
-| `--flow_method` | `farneback` | Optical flow method (`farneback`, `lucas_kanade`, `ncc`) |
-| `--seg_lam` | `3.0` | Weight for segmentation loss (λ_seg) |
-| `--kd_lam` | `1.0` | Weight for knowledge distillation loss (λ_KD) |
-| `--con_lam` | `2.0` | Weight for temporal consistency loss (λ_con) |
-| `--proto_lam` | `0.1` | Weight for prototype alignment loss (λ_proto) |
-| `--temperature` | `4.0` | KD temperature parameter τ |
+| `--flow_method` | `farneback` | Optical flow method: `farneback`, `lucas_kanade`, or `ncc` |
+| `--seg_lam` | `3.0` | Segmentation loss weight |
+| `--kd_lam` | `1.0` | Knowledge distillation loss weight |
+| `--con_lam` | `2.0` | Temporal consistency loss weight |
+| `--proto_lam` | `0.1` | Prototype alignment loss weight |
+| `--temperature` | `4.0` | KD temperature |
 | `--multi_gpu` | `False` | Enable DDP multi-GPU training |
 | `--use_amp` | `False` | Enable automatic mixed precision |
-| `--patience` | `10` | Early stopping patience (epochs) |
+| `--patience` | `10` | Early stopping patience |
 
-Training logs (total loss, seg loss, KD loss, temporal loss, DSC, S-measure, etc.) are printed per epoch. The best checkpoint is saved based on validation DSC. A `training_config.json` with final λ settings and metrics is also saved.
+</details>
 
----
-
-### Inference — Single Patient Video
-
-Run frame-by-frame segmentation on a single patient and export an annotated `.mp4` video with green mask overlay and blue contours.
+### Inference on a single patient video
 
 ```bash
 python scripts/vid_infer_single_patient.py \
@@ -285,25 +299,19 @@ python scripts/vid_infer_single_patient.py \
     --fps 30
 ```
 
-| Argument | Options | Description |
-|---|---|---|
-| `--view` | `axi`, `sag`, `both` | Ultrasound view plane to process |
-| `--fps` | `30` | Output video frame rate |
-| `--img_size` | `256` | Input resolution for model |
+Output videos are saved under:
 
-Output videos are named `<patient_id>_<checkpoint_info>.mp4` and saved under `<output_dir>/<checkpoint_stem>/`.
+```text
+<output_dir>/<checkpoint_stem>/<patient_id>_<checkpoint_info>.mp4
+```
 
----
-
-### 3D Reconstruction
-
-Reconstruct a rotating 3D prostate mesh from a predicted NIfTI segmentation mask (`.nii.gz`) using marching cubes, and save as an animated `.gif`.
+### Optional: 3D reconstruction
 
 ```bash
 python scripts/3D_recon.py
 ```
 
-Configure `id` (patient ID), `mode` (`img` or `vid`), and `type` (`axi`/`sag`) directly in the script header. Output GIFs are saved under `3D_recon/<patient_id>/<datetime>/`.
+Configure the patient ID, mode, and view plane in the script header. Outputs are saved under `3D_recon/<patient_id>/<datetime>/`.
 
 ---
 
@@ -312,7 +320,7 @@ Configure `id` (patient ID), `mode` (`img` or `vid`), and `type` (`axi`/`sag`) d
 | Category | Models |
 |---|---|
 | Conv-based | U-Net, U-Net++, U-Net 3+, ColonSegNet |
-| Transformer | AttU-Net, ACSNet, PraNet, MedNeXt, TransNetR |
+| Transformer-based | AttU-Net, ACSNet, PraNet, MedNeXt, TransNetR |
 | Hybrid | MSRF-Net, CMUNet, CMUNeXt, UNeXt |
 
 ---
@@ -320,16 +328,14 @@ Configure `id` (patient ID), `mode` (`img` or `vid`), and `type` (`axi`/`sag`) d
 ## Datasets
 
 | Dataset | Modality | Size | Purpose |
-|---|---|---|---|
-| **TRUS-V** (ours, to be released) | Prostate TRUS video | 2,679 frames (Axial + Sagittal) | Video training & evaluation |
-| Static TRUS | Prostate TRUS images | 2,140 Axial + 2,260 Sagittal | Inital labeler pretraining |
-| **SUN-SEG** | Video polyp (colonoscopy) | 158,690 frames | Generalization evaluation |
+|---|---|---:|---|
+| **TRUS-V** | Prostate TRUS video | 2,679 frames | Video training and evaluation |
+| Static TRUS | Prostate TRUS images | 2,140 axial + 2,260 sagittal images | Teacher pretraining |
+| **SUN-SEG** | Colonoscopy video | 158,690 frames | Generalization evaluation |
 
 ---
 
 ## Citation
-
-If you find this work useful in your research, please cite:
 
 ```bibtex
 @inproceedings{kim2026dtctrus,
@@ -341,8 +347,18 @@ If you find this work useful in your research, please cite:
 }
 ```
 
+Proceedings details, DOI, and the official paper URL will be added after publication.
+
 ---
 
-## License
+## License and Data Terms
 
-This project is released for research purposes. The TRUS-V dataset will be released under a data-sharing agreement upon paper acceptance. Please refer to `LICENSE` for full terms.
+This repository is released for research use. Please refer to `LICENSE` for code usage terms.
+
+TRUS-V is distributed through KHDP. Users must follow the access requirements and data-use terms specified on the [TRUS-V dataset page](https://khdp.net/database/data-search-detail/TRUS-V).
+
+---
+
+## Acknowledgements
+
+This work was supported by the National Research Foundation of Korea (NRF) grant funded by the Korea government (MSIT) and the Korea Health Technology R&D Project through KHIDI, funded by the Ministry of Health & Welfare, Republic of Korea.
