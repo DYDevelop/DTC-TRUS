@@ -2,7 +2,9 @@
 
 > **Accepted on MICCAI 2026** 
 > 
-> **Project Page:** [https://dydevelop.github.io/DTC-TRUS/](https://dydevelop.github.io/DTC-TRUS/)
+> **Project Page:** [Link](https://dydevelop.github.io/DTC-TRUS/)
+>
+> **Dataset:** [Link](https://khdp.net/database/data-search-detail/TRUS-V)
 
 This repository provides the official implementation of our **Temporally Consistent Learning Framework** for real-time prostate segmentation in Transrectal Ultrasound (TRUS) videos. Our method distills temporal coherence into a standard 2D backbone during training, achieving temporally stable predictions at inference with **no 3D computation overhead**.
 
