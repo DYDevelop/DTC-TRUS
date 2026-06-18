@@ -2,9 +2,9 @@
 
 > **Accepted on MICCAI 2026** 
 > 
-> **Project Page:** [Link](https://dydevelop.github.io/DTC-TRUS/)
+> **Project Page:** **[Link](https://dydevelop.github.io/DTC-TRUS/)**
 >
-> **Dataset:** [Link](https://khdp.net/database/data-search-detail/TRUS-V)
+> **Dataset:** **[Link](https://khdp.net/database/data-search-detail/TRUS-V)**
 
 This repository provides the official implementation of our **Temporally Consistent Learning Framework** for real-time prostate segmentation in Transrectal Ultrasound (TRUS) videos. Our method distills temporal coherence into a standard 2D backbone during training, achieving temporally stable predictions at inference with **no 3D computation overhead**.
 
@@ -78,7 +78,8 @@ We release **TRUS-V**, a new multi-view TRUS video segmentation benchmark:
 | Annotation | Semi-automated (5-fold U-Net ensemble + radiologist refinement) |
 | Ensemble DSC | 0.95 (Axial), 0.93 (Sagittal) |
 
-The dataset will be made publicly available soon. (Under DRB Review)
+The datasetis avaliable now!!! --> **([Link](https://khdp.net/database/data-search-detail/TRUS-V)**
+Simply singin to Korea Health Data Platform (KHDP) for Global Collaborative Research
 
 ---
 
