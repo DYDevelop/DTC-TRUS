@@ -1,10 +1,14 @@
 # DTC-TRUS GitHub Project Page
 
-Static GitHub Pages template for the DTC-TRUS manuscript:
+Static GitHub Pages template for:
 
 **Distilling Temporal Coherence into 2D Networks for Transrectal Ultrasound Prostate Video Segmentation**
 
-The page is intentionally prepared for a pre-publication state. Paper, code, dataset, author list, and BibTeX entries are placeholders and should be updated after publication or repository release.
+This version includes the public TRUS-V dataset link on KHDP:
+
+<https://khdp.net/database/data-search-detail/TRUS-V>
+
+The MICCAI paper URL is still intentionally left as a placeholder until publication.
 
 ## Files
 
@@ -29,25 +33,17 @@ The page is intentionally prepared for a pre-publication state. Paper, code, dat
 5. Select the target branch and either `/` or `/docs` depending on where you placed the files.
 6. Save and wait for GitHub Pages to build.
 
-## Publication checklist
+## Update notes
 
-Before making the page public, update the following items in `index.html`:
+- Dataset CTA now points to the TRUS-V KHDP page.
+- Dataset section now states that TRUS-V is available through KHDP.
+- Materials section now marks Dataset as `Available` and includes the direct KHDP record link.
+- The broken Dataset CTA anchor in the uploaded `index.html` has been closed correctly.
+- Paper button remains `MICCAI paper coming soon` until an official paper/preprint URL is ready.
 
-- Replace `Anonymous Authors` with the final author list and affiliations.
-- Replace the disabled paper button with the official paper or preprint URL.
-- Replace the code placeholder with the public repository URL.
-- Replace the dataset placeholder with the release/request URL.
-- Replace the BibTeX placeholder with the official citation.
-- Re-check all figures for de-identification and publication permissions.
+## Indexing note
 
-## Indexing checklist
-
-This version contains pre-publication indexing protection:
-
-- `index.html` includes `<meta name="robots" content="noindex, nofollow">`.
-- `robots.txt` disallows crawling.
-
-Remove both after the page is intended to be indexed publicly.
+`robots.txt` currently disallows crawling. Remove or update `robots.txt` when the project page should be indexed publicly.
 
 ## Editing notes
 

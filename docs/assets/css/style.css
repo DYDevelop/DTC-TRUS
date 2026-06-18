@@ -705,3 +705,20 @@ pre {
     font-size: 12px;
   }
 }
+
+.text-link {
+  color: var(--primary-dark);
+  font-weight: 800;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(8, 145, 178, 0.35);
+}
+
+.text-link:hover,
+.text-link:focus-visible {
+  border-bottom-color: currentColor;
+}
+
+.notice .text-link {
+  display: inline-block;
+  margin-top: 10px;
+}
