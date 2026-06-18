@@ -272,6 +272,18 @@ p {
   opacity: 0.82;
 }
 
+.text-link {
+  color: var(--primary-dark);
+  font-weight: 800;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+
+.text-link:hover,
+.text-link:focus-visible {
+  color: var(--ink);
+}
+
 .stat-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -704,21 +716,4 @@ pre {
     padding: 58px 18px 20px;
     font-size: 12px;
   }
-}
-
-.text-link {
-  color: var(--primary-dark);
-  font-weight: 800;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(8, 145, 178, 0.35);
-}
-
-.text-link:hover,
-.text-link:focus-visible {
-  border-bottom-color: currentColor;
-}
-
-.notice .text-link {
-  display: inline-block;
-  margin-top: 10px;
 }
