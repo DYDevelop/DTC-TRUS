@@ -9,7 +9,7 @@
 [![Dataset](https://img.shields.io/badge/Dataset-TRUS--V%20%40%20KHDP-10B981)](https://khdp.net/database/data-search-detail/TRUS-V)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.4.1-EE4C2C)](#installation)
 
-Official implementation of **DTC-TRUS**, a temporally consistent learning framework for real-time prostate segmentation in transrectal ultrasound videos. :heart_eyes: Accepted on MICCAI 2026!!
+Official implementation of **DTC-TRUS**, a temporally consistent learning framework for real-time prostate segmentation in transrectal ultrasound videos. :heart_eyes: **Accepted on *MICCAI 2026*!!**
 
 </div>
 
