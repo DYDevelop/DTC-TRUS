@@ -39,7 +39,7 @@ At inference, the deployed model remains a single-frame 2D segmenter: **no optic
 | Project page | Available | [dydevelop.github.io/DTC-TRUS](https://dydevelop.github.io/DTC-TRUS/) |
 | Code | Available | [github.com/DYDevelop/DTC-TRUS](https://github.com/DYDevelop/DTC-TRUS) |
 | TRUS-V dataset | Available | [KHDP dataset page](https://khdp.net/database/data-search-detail/TRUS-V) |
-| Paper | Pending | Official paper URL will be added after publication |
+| Paper | Available | [arxiv](https://arxiv.org/pdf/2606.31198) |
 
 ---
 
