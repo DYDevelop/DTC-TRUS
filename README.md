@@ -5,6 +5,7 @@
 ### Distilling Temporal Coherence into 2D Networks for TRUS Prostate Video Segmentation
 
 [![MICCAI 2026](https://img.shields.io/badge/MICCAI-2026-2F80ED)](#citation)
+[![arXiv](https://img.shields.io/badge/arXiv-2606.19867-b31b1b)](https://arxiv.org/pdf/2606.31198)
 [![Project Page](https://img.shields.io/badge/Project-Page-111827)](https://dydevelop.github.io/DTC-TRUS/)
 [![Dataset](https://img.shields.io/badge/Dataset-TRUS--V%20%40%20KHDP-10B981)](https://khdp.net/database/data-search-detail/TRUS-V)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.4.1-EE4C2C)](#installation)
