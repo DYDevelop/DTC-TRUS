@@ -338,12 +338,15 @@ Configure the patient ID, mode, and view plane in the script header. Outputs are
 ## Citation
 
 ```bibtex
-@inproceedings{kim2026dtctrus,
-  title     = {Distilling Temporal Coherence into 2D Networks for Transrectal Ultrasound Prostate Video Segmentation},
-  author    = {Kim, Dong Yeong and Lee, JunGyu and Choi, Jaewon and Seo, June Young and Kim, Myeongseop and Choi, Jinwook and Kim, Taek Min and Kim, Young-Gon},
-  booktitle = {International Conference on Medical Image Computing and Computer-Assisted Intervention (MICCAI)},
-  year      = {2026},
-  note      = {Accepted}
+@InProceedings{KimDon_Distilling_MICCAI2026,
+        author = { Kim, Dong Yeong AND Lee, JunGyu AND Choi, Jaewon AND Seo, June Young AND Kim, Myeongseop AND Choi, Jinwook AND Kim, Taek Min AND Kim, Young-Gon},
+        title = { { Distilling Temporal Coherence Into 2D Networks for Transrectal Ultrasound Prostate Video Segmentation } },
+        booktitle = {Medical Image Computing and Computer Assisted Intervention -- MICCAI 2026},
+        year = {2026},
+        publisher = {Springer Nature Switzerland},
+        volume = {LNCS 16883},
+        month = {September},
+        page = {pending}
 }
 ```
 
